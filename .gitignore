@@ -7,3 +7,4 @@ QA/e2e/playwright-report/
 services/interpreter_gateway/__pycache__/
 QA/e2e/failure-screenshot.png
 services/ui_vite/node_modules/
+services/code_investigator/__pycache__/

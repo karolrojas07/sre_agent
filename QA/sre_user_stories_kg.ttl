@@ -104,3 +104,16 @@
 :test_validation_agent_scaffolding_e2e rdf:type :E2ETestSuite ;
     :title "Validation Agent Scaffolding and Trace Validation" ;
     :description "Playwright test asserting UI skeletal components exist and tracing headers are propagated from UI to Gateway POST /report-incident." .
+
+### User Story 14: Centralized Logging with Grafana Loki
+:us14 rdf:type :UserStory ;
+    :title "Centralized Logging with Grafana Loki" ;
+    :description "As an SRE, I want to centralize all logs in Grafana Loki via the OTel Collector, with the Interpreter Gateway acting as an OTLP proxy for frontend logs, using a JSON format for structured log streams." .
+
+:test_centralized_logging_e2e rdf:type :E2ETestSuite ;
+    :title "Centralized Logging E2E Validation" ;
+    :description "Playwright test validating that logs from both backend services and the Vite UI (via Gateway proxy) are correctly ingested into Loki and queryable via Grafana." .
+
+:test_code_investigator_logging_e2e rdf:type :E2ETestSuite ;
+    :title "Code Investigator Logging Validation" ;
+    :description "Playwright test validating that the Code Investigator emits thorough OTel logs during its ReAct loop which are ingested into Loki." .

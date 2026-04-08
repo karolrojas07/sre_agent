@@ -34,7 +34,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.75.0
     container_name: otel-collector
     command: ["--config=/etc/otel-collector-config.yml"]
     volumes:
@@ -50,6 +50,16 @@ services:
     depends_on:
       - jaeger
       - prometheus
+      - loki
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
 
   grafana:
     image: grafana/grafana:latest
@@ -67,7 +77,7 @@ services:
     image: python:3.9-slim
     container_name: interpreter-gateway
     command: >
-      bash -c "pip install fastapi uvicorn aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp pydantic && python main.py"
+      bash -c "pip install fastapi uvicorn aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp pydantic httpx && python main.py"
     working_dir: /app
     volumes:
       - ./services/interpreter_gateway:/app
@@ -133,3 +143,4 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
+  loki_data:
