@@ -31,10 +31,10 @@ Check the status of the containers:
 docker compose ps
 ```
 The services will be available at:
-- **Interpreter Gateway**: http://localhost:38000
-- **Jaeger UI**: http://localhost:36686
-- **Prometheus UI**: http://localhost:39090
-- **Grafana UI**: http://localhost:33000
+- **Interpreter Gateway**: http://localhost:48000
+- **Jaeger UI**: http://localhost:46686
+- **Prometheus UI**: http://localhost:49090
+- **Grafana UI**: http://localhost:43000
 
 ### Step 3: Run the Regression Suite (Optional)
 To validate the deployment programmatically:
@@ -55,7 +55,7 @@ The system is provisioned with two primary data sources in Grafana:
 2. **Jaeger**: For distributed tracing exploration.
 
 ### Grafana Access
-- **URL**: http://localhost:33000
+- **URL**: http://localhost:43000
 - **Auth**: Anonymous access is enabled with Admin role.
 
 ### Extensive Dashboard Guide

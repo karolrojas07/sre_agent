@@ -3,7 +3,7 @@ import axios from 'axios';
 
 test.describe('Observability Unit 3: Grafana Datasource Health', () => {
 
-  const GRAFANA_API_URL = 'http://localhost:33000/api/datasources';
+  const GRAFANA_API_URL = 'http://localhost:43000/api/datasources';
 
   test('Prometheus datasource should be present and healthy', async () => {
     const dsResponse = await axios.get(GRAFANA_API_URL);

@@ -3,11 +3,11 @@ import axios from 'axios';
 
 test.describe('Observability Unit 2: OTel Collector -> Jaeger Connectivity', () => {
 
-  const JAEGER_SERVICES_URL = 'http://localhost:36686/api/services';
+  const JAEGER_SERVICES_URL = 'http://localhost:46686/api/services';
 
   test('Jaeger should register the test-service after trace injection', async () => {
     // Inject a trace to register the service
-    await axios.post('http://localhost:34318/v1/traces', {
+    await axios.post('http://localhost:44318/v1/traces', {
       resourceSpans: [{
         resource: { attributes: [{ key: 'service.name', value: { stringValue: 'test-service-playwright' } }] },
         scopeSpans: [{ spans: [{

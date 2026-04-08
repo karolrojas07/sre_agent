@@ -5,7 +5,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     ports:
-      - "39090:9090"
+      - "49090:9090"
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
@@ -19,7 +19,7 @@ services:
     image: jaegertracing/all-in-one:latest
     container_name: jaeger
     ports:
-      - "36686:16686"
+      - "46686:16686"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
 
@@ -27,8 +27,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "35672:5672"
-      - "35673:15672"
+      - "45672:5672"
+      - "45673:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -40,13 +40,13 @@ services:
     volumes:
       - ./otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:
-      - "31888:1888"   # pprof extension
-      - "38888:8888"   # Prometheus metrics exposed by the collector
-      - "38889:8889"   # Prometheus exporter metrics
-      - "33133:13133" # health_check extension
-      - "34317:4317"   # OTLP gRPC receiver
-      - "34318:4318"   # OTLP HTTP receiver
-      - "35679:55679" # zpages extension
+      - "41888:1888"   # pprof extension
+      - "48888:8888"   # Prometheus metrics exposed by the collector
+      - "48889:8889"   # Prometheus exporter metrics
+      - "43133:13133" # health_check extension
+      - "44317:4317"   # OTLP gRPC receiver
+      - "44318:4318"   # OTLP HTTP receiver
+      - "45679:55679" # zpages extension
     depends_on:
       - jaeger
       - prometheus
@@ -55,7 +55,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "33000:3000"
+      - "43000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -74,7 +74,7 @@ services:
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     ports:
-      - "38000:8000"
+      - "48000:8000"
     depends_on:
       - rabbitmq
       - otel-collector

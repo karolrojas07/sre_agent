@@ -3,8 +3,8 @@ import axios from 'axios';
 
 test.describe('Architectural Interfaces E2E Validation', () => {
 
-  const GATEWAY_URL = 'http://localhost:38000';
-  const JAEGER_URL = 'http://localhost:36686';
+  const GATEWAY_URL = 'http://localhost:48000';
+  const JAEGER_URL = 'http://localhost:46686';
 
   test('User intent should flow from Interpreter Gateway to Validation Agent', async () => {
     // 1. Submit intent to Gateway

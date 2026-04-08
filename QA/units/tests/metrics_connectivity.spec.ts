@@ -3,7 +3,7 @@ import axios from 'axios';
 
 test.describe('Observability Unit 1: Collector -> Prometheus Connectivity', () => {
 
-  const PROMETHEUS_QUERY_URL = 'http://localhost:39090/api/v1/query';
+  const PROMETHEUS_QUERY_URL = 'http://localhost:49090/api/v1/query';
 
   test('Prometheus should see the OTel Collector itself as a scrape target', async () => {
     // We expect the 'up' metric for the 'otel-collector' job to be 1
