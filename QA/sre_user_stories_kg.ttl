@@ -53,3 +53,23 @@
 
 :test_jaeger_query rdf:type :E2ETestSuite ;
     :title "Jaeger API Connectivity Test" .
+
+### Test Instance for SDK Version Compliance
+:otel_sdk_version_compliance_fix rdf:type :SDKVersionCompliance ;
+    :title "OTel SDK ResourceAttributes Migration" ;
+    :description "Migrate from RESOURCE_ATTRIBUTES to ResourceAttributes for compatibility with opentelemetry-sdk 1.x." .
+
+### User Story 8: Diagnostic Triage via Codebase Exploration
+:us8 rdf:type :UserStory ;
+    :title "Diagnostic Triage via Codebase Exploration" ;
+    :description "As an SRE, I want the Code Agent to explore the codebase during an incident to provide triaged context and suggest priority changes based on hidden risks." .
+
+### User Story 9: Historical Incident Retrieval via Vector DB
+:us9 rdf:type :UserStory ;
+    :title "Historical Incident Retrieval via Vector DB" ;
+    :description "As an SRE, I want to retrieve similar historical incidents from a vector database (VoyageAI + ChromaDB) to improve incident understanding and suggested workarounds." .
+
+### Test Instances for US8 & US9
+:e2e_code_triage_test rdf:type :E2ETestSuite ;
+    :title "Code Agent Diagnostic Triage Validation" ;
+    :description "Playwright test validating that the Code Agent produces diagnostic spans and returns triaged context." .

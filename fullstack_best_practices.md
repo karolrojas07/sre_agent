@@ -1,6 +1,6 @@
-# Full-Stack Development Best Practices Master Guide
+# Full-Stack Development Best Practices Master Guide (Vite Edition)
 
-This document serves as the primary source of truth for architectural standards, programming patterns, and development workflows for this project. It integrates knowledge from specialized domains including OpenAPI, Python, Web Testing, OpenSearch, and Data Persistence.
+This document serves as the primary source of truth for architectural standards and development workflows. It integrates knowledge from OpenAPI, Python, Vite, Vitest, and modern frontend state management.
 
 ---
 
@@ -9,34 +9,20 @@ This document serves as the primary source of truth for architectural standards,
 Treat the **OpenAPI Specification (OAS)** as the "Single Source of Truth."
 
 ### Design-First Workflow
-*   **Design Before Code:** Define endpoints, schemas, and validation rules in OAS *before* writing backend logic.
-*   **Parallel Development:** Use the OAS to generate mock servers (e.g., Prism) so frontend teams can build against a stable interface while the backend is in progress.
-*   **Automated Governance:** Use linters like **Spectral** in CI/CD pipelines to enforce naming conventions and security policies.
-*   **Contract Testing:** Use tools like **Dredd** or **Pact** to ensure the live API honors the specification.
-
-### Naming & Schema Standards
-*   **Paths:** Use `kebab-case` and plural nouns (e.g., `/user-profiles`).
-*   **Schemas:** Use `PascalCase` for model names and `camelCase` or `snake_case` consistently for properties.
-*   **Reusable Components:** Define schemas in `components/schemas` and reference them with `$ref` to stay DRY.
-*   **Validation:** Use `maxLength`, `pattern` (Regex), and `minimum/maximum` to enforce data integrity at the schema level.
+* **Design Before Code:** Define endpoints and schemas in OAS *before* writing backend logic.
+* **Parallel Development:** Use OAS to generate mock servers so frontend teams can build against stable interfaces.
+* **Automated Governance:** Use linters like **Spectral** to enforce naming conventions.
 
 ---
 
 ## 2. Backend Architecture: Python & Design Patterns
 
-Expert-level Python design focuses on **SOLID principles**, **Clean Code**, and leveraging Python's idiomatic features.
+Expert-level Python design focuses on **SOLID principles** and leveraging idiomatic features.
 
 ### Architectural Strategy: Hexagonal Architecture (Ports & Adapters)
-*   **Core Domain:** Keep business logic "pure" and persistence-ignorant.
-*   **Ports:** Define abstract interfaces for external needs (e.g., `UserRepositoryInterface`).
-*   **Adapters:** Implement concrete classes (e.g., `PostgresUserRepository`) to connect the core to infrastructure.
-
-### Key Pythonic Patterns
-*   **Factory Method:** Centralize object instantiation to adhere to the Open/Closed Principle.
-*   **Strategy Pattern:** Use composition over inheritance to swap algorithms (e.g., different payment providers) at runtime.
-*   **Observer Pattern:** Implement loose coupling for event-driven updates.
-*   **Decorator Pattern:** Use Python's native `@decorator` syntax for cross-cutting concerns like logging or authentication.
-*   **Singleton Warning:** Avoid manual Singletons; use Python's module system for clean, safe global state.
+* **Core Domain:** Keep business logic "pure" and persistence-ignorant.
+* **Ports:** Define abstract interfaces for external needs (e.g., `UserRepositoryInterface`).
+* **Adapters:** Implement concrete classes (e.g., `PostgresUserRepository`) to connect the core to infrastructure.
 
 ---
 
@@ -44,56 +30,58 @@ Expert-level Python design focuses on **SOLID principles**, **Clean Code**, and 
 
 Bridge the "impedance mismatch" between objects and relational databases using decoupled patterns.
 
-### Persistence Strategies
-*   **Data Mapper (Preferred):** Use **SQLAlchemy** to decouple domain objects from the database schema, maintaining "persistence ignorance" in the core.
-*   **Active Record:** Reserved for simple CRUD; avoid in complex enterprise logic due to tight coupling (Django-style).
-*   **Repository Pattern:** Treat persisted data as an in-memory collection of domain objects. Focus on **Aggregate Roots** and use the application's ubiquitous language.
-*   **Unit of Work (UoW):** Coordinate multiple repository updates into a single atomic transaction. (Managed implicitly by SQLAlchemy `Session`).
+* **Data Mapper:** Use **SQLAlchemy** to decouple domain objects from the database schema.
+* **Repository Pattern:** Treat persisted data as an in-memory collection of domain objects focusing on **Aggregate Roots**.
+* **Unit of Work (UoW):** Coordinate multiple repository updates into a single atomic transaction, managed implicitly by SQLAlchemy `Session`.
 
 ---
 
-## 4. Frontend Integration & Type Safety
+## 4. Frontend Integration & Vite Architecture
 
-Ensure end-to-end type safety to eliminate "contract drift."
+[cite_start]Shift from monolithic frameworks to Vite’s **ESM-centric** philosophy, prioritizing speed and modularity[cite: 1, 4].
 
-*   **Automated SDK Generation:** Generate TypeScript clients directly from the backend `openapi.json` using tools like `hey API`.
-*   **Compile-Time Verification:** Catch schema mismatches during the build process rather than at runtime.
-*   **Runtime Validation:** Use **Zod** on the frontend to validate user inputs and environment variables, deriving TS types directly from schemas.
+### Architectural Patterns
+* [cite_start]**Feature-Based Organization (FSD):** Group code by business feature (e.g., `src/features/auth`) rather than technical role (components/hooks)[cite: 24, 27, 48].
+* [cite_start]**Public API (Barrel Exports):** Each feature must expose a public interface via `index.ts` to enforce encapsulation[cite: 220, 221].
+* [cite_start]**Type Safety:** Prefer TypeScript `type` over `interface` for component props and API responses for better flexibility and consistency[cite: 193, 194, 209].
+
+### Connectivity & State
+* [cite_start]**API Client:** Use **ky** for a lightweight (3KB) fetch wrapper with built-in retry logic and excellent TypeScript support[cite: 314, 319, 344].
+* [cite_start]**Server State:** Use **TanStack Query** for caching and background refetching[cite: 77, 310, 311].
+* [cite_start]**Client State:** Use **Zustand** for lightweight, boilerplate-free global state (e.g., auth, theme)[cite: 114, 115, 343].
 
 ---
 
 ## 5. Web Testing & Automation
 
-### Cypress (E2E & Component Testing)
-*   **Test Independence:** Ensure tests can run in any order.
-*   **App Actions:** Prefer setting state programmatically over brittle Page Object Models.
-*   **Selectors:** Use dedicated `data-cy` or `data-testid` attributes instead of fragile CSS classes.
-*   **Avoid Anti-patterns:** Never use static `cy.wait()`; use `cy.intercept()` to wait for network signals.
+[cite_start]Vite enables a unified testing pipeline where tests share the same configuration as the build tool[cite: 20].
 
-### Playwright (Modern Web Automation)
-*   **Locator Strategy:** Prioritize user-facing roles (`getByRole`) over DOM structure.
-*   **Web-First Assertions:** Use auto-retrying assertions like `expect(locator).toBeVisible()`.
-*   **State Reuse:** Authenticate once and reuse `storageState` across tests to save time.
-*   **Visual Testing:** Run visual regressions in **Docker** to ensure consistent rendering across environments.
+### Unit & Component Testing (Vitest)
+* [cite_start]**Unified Pipeline:** Use **Vitest** to run tests using the same transformation logic as the Vite dev server[cite: 20, 22].
+* [cite_start]**Browser Mode:** For component testing, run tests in real browsers (via Playwright/WebdriverIO) rather than JSDOM to catch styling and accessibility issues[cite: 23, 325, 326].
+* [cite_start]**Mocking:** Use **Mock Service Worker (MSW)** to intercept requests at the network level for both development and testing[cite: 18, 321, 322].
+
+### End-to-End (E2E) Testing
+* [cite_start]**Playwright:** Prioritize Playwright for CI/CD due to its native parallelism and faster execution compared to legacy tools[cite: 27, 30].
+* [cite_start]**Stable Locators:** Always use `data-testid` or `getByRole` to ensure tests remain resilient to UI changes[cite: 26, 30, 328].
 
 ---
 
 ## 6. OpenSearch & Search Performance
 
 ### Index Management
-*   **Explicit Mappings:** Avoid dynamic mapping; define strict structures for performance and consistency.
-*   **Index State Management (ISM):** Automate rollovers, segment merges, and data retention policies.
-*   **Aliases:** Use aliases to reindex data without application downtime.
+* **Explicit Mappings:** Define strict structures; avoid dynamic mapping for performance.
+* **Index State Management (ISM):** Automate rollovers and data retention policies.
 
 ### Query Optimization
-*   **Filter Context:** Use filter contexts (non-scoring) for exact matches to leverage caching.
-*   **Deep Pagination:** Use **Point in Time (PIT)** and `search_after` instead of `from/size` for large result sets.
-*   **Eager Global Ordinals:** Enable for frequently aggregated keyword fields to reduce query latency.
+* **Filter Context:** Use non-scoring filters for exact matches to leverage caching.
+* **Deep Pagination:** Use **Point in Time (PIT)** and `search_after` instead of `from/size`.
 
 ---
 
-## 7. DevOps & Security
+## 7. DevOps, Security & Environment
 
-*   **Monorepo:** Use **Turborepo** or **pnpm** to keep frontend, backend, and generated SDKs in sync.
-*   **Architectural Fitness Functions:** Automate CI tests to prevent domain logic from importing infrastructure adapters.
-*   **Security:** Implement **OAuth2 with PKCE** and enforce **TLS 1.3**. Always assume the client is compromised; perform all critical filtering on the backend.
+* [cite_start]**Environment Variables:** Adhere to the **`VITE_`** prefix convention for variables exposed to the client; non-prefixed variables remain server-side only for security[cite: 31, 333].
+* [cite_start]**Path Aliases:** Use absolute imports (e.g., `@/features/...`) configured in `vite.config.ts` and `tsconfig.json` to eliminate fragile relative paths[cite: 214, 215, 216].
+* [cite_start]**Build Optimization:** Utilize **Code Splitting** (via `React.lazy`) and **Manual Chunks** in Rollup to optimize loading performance for large features[cite: 235, 237, 244].
+* **Security:** Implement **OAuth2 with PKCE**. Always assume the client is compromised; perform all critical filtering on the backend.

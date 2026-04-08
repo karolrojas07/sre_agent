@@ -5,7 +5,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     ports:
-      - "9090:9090"
+      - "39090:9090"
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
@@ -19,7 +19,7 @@ services:
     image: jaegertracing/all-in-one:latest
     container_name: jaeger
     ports:
-      - "16686:16686"
+      - "36686:16686"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
 
@@ -27,8 +27,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - "35672:5672"
+      - "35673:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -40,13 +40,13 @@ services:
     volumes:
       - ./otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:
-      - "1888:1888"   # pprof extension
-      - "8888:8888"   # Prometheus metrics exposed by the collector
-      - "8889:8889"   # Prometheus exporter metrics
-      - "13133:13133" # health_check extension
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"   # OTLP HTTP receiver
-      - "55679:55679" # zpages extension
+      - "31888:1888"   # pprof extension
+      - "38888:8888"   # Prometheus metrics exposed by the collector
+      - "38889:8889"   # Prometheus exporter metrics
+      - "33133:13133" # health_check extension
+      - "34317:4317"   # OTLP gRPC receiver
+      - "34318:4318"   # OTLP HTTP receiver
+      - "35679:55679" # zpages extension
     depends_on:
       - jaeger
       - prometheus
@@ -55,13 +55,71 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3001:3000"
+      - "33000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  interpreter-gateway:
+    image: python:3.9-slim
+    container_name: interpreter-gateway
+    command: >
+      bash -c "pip install fastapi uvicorn aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp && python main.py"
+    working_dir: /app
+    volumes:
+      - ./services/interpreter_gateway:/app
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "38000:8000"
+    depends_on:
+      - rabbitmq
+      - otel-collector
+
+  validation-agent:
+    image: python:3.9-slim
+    container_name: validation-agent
+    command: >
+      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp && python main.py"
+    working_dir: /app
+    volumes:
+      - ./services/validation_agent:/app
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - rabbitmq
+      - otel-collector
+
+  mock-jira-agent:
+    image: python:3.9-slim
+    container_name: mock-jira-agent
+    command: >
+      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp && python main.py"
+    working_dir: /app
+    volumes:
+      - ./services/mock_jira_agent:/app
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - rabbitmq
+      - otel-collector
+
+  mock-code-agent:
+    image: python:3.9-slim
+    container_name: mock-code-agent
+    command: >
+      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp && python main.py"
+    working_dir: /app
+    volumes:
+      - ./services/mock_code_agent:/app
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - rabbitmq
+      - otel-collector
 
 volumes:
   prometheus_data:

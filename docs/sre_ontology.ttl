@@ -17,6 +17,28 @@
 :ErrorBudget rdf:type owl:Class .
 :UserStory rdf:type owl:Class .
 
+### Agent Roles
+:Agent rdf:type owl:Class ; rdfs:subClassOf :Service .
+:InterpreterAgent rdf:type owl:Class ; rdfs:subClassOf :Agent .
+:ValidationAgent rdf:type owl:Class ; rdfs:subClassOf :Agent .
+:JiraAgent rdf:type owl:Class ; rdfs:subClassOf :Agent .
+:CodeAgent rdf:type owl:Class ; rdfs:subClassOf :Agent .
+
+### Domain Ports (Architectural Interfaces)
+:DomainPort rdf:type owl:Class .
+:IInterpreter rdf:type owl:Class ; rdfs:subClassOf :DomainPort .
+:IValidationAgent rdf:type owl:Class ; rdfs:subClassOf :DomainPort .
+:IJiraAgent rdf:type owl:Class ; rdfs:subClassOf :DomainPort .
+:ICodeAgent rdf:type owl:Class ; rdfs:subClassOf :DomainPort .
+
+### Messaging & Communication
+:RestGateway rdf:type owl:Class ; rdfs:subClassOf :Service .
+:FastAPI rdf:type owl:Class ; rdfs:subClassOf :RestGateway .
+:MessageSchema rdf:type owl:Class .
+:TaskMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
+:IncidentMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
+:ValidationResultMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
+
 ### Properties
 :title rdf:type owl:AnnotationProperty .
 :description rdf:type owl:AnnotationProperty .
@@ -46,6 +68,10 @@
 :Persistence rdf:type owl:Class .
 :VolumeMount rdf:type owl:Class ; rdfs:subClassOf :Persistence .
 :NamedVolume rdf:type owl:Class ; rdfs:subClassOf :Persistence .
+:VectorDatabase rdf:type owl:Class ; rdfs:subClassOf :Persistence .
+:VoyageAI rdf:type owl:Class ; rdfs:subClassOf :Service .
+:ChromaDB rdf:type owl:Class ; rdfs:subClassOf :VectorDatabase .
+:TriageContext rdf:type owl:Class ; rdfs:subClassOf :Metadata .
 :IngestionPattern rdf:type owl:Class .
 :PushPattern rdf:type owl:Class ; rdfs:subClassOf :IngestionPattern .
 :RemoteWrite rdf:type owl:Class ; rdfs:subClassOf :PushPattern .
@@ -55,6 +81,8 @@
 :Requirement rdf:type owl:Class .
 :NonFunctionalRequirement rdf:type owl:Class ; rdfs:subClassOf :Requirement .
 :ObservabilityValidation rdf:type owl:Class ; rdfs:subClassOf :NonFunctionalRequirement .
+:IncidentTriage rdf:type owl:Class ; rdfs:subClassOf :Service .
+:SDKVersionCompliance rdf:type owl:Class ; rdfs:subClassOf :NonFunctionalRequirement .
 
 ### Testing Concepts
 :TestingTool rdf:type owl:Class .

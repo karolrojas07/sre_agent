@@ -3,8 +3,8 @@ import axios from 'axios';
 
 test.describe('Observability Stack Programmatic Validation', () => {
 
-  const PROMETHEUS_URL = 'http://localhost:9090';
-  const JAEGER_URL = 'http://localhost:16686';
+  const PROMETHEUS_URL = 'http://localhost:39090';
+  const JAEGER_URL = 'http://localhost:36686';
 
   test('Prometheus should be reachable and return metrics', async () => {
     const response = await axios.get(`${PROMETHEUS_URL}/api/v1/query`, {
@@ -25,7 +25,7 @@ test.describe('Observability Stack Programmatic Validation', () => {
     // Inject RabbitMQ metric via Prometheus Remote Write to the Collector
     // This is a placeholder since we don't have the aio-pika implementation yet
     // But we test the collector's ability to receive and export it.
-    await axios.post('http://localhost:4318/v1/metrics', {
+    await axios.post('http://localhost:34318/v1/metrics', {
       resourceMetrics: [{
         resource: { attributes: [{ key: 'service.name', value: { stringValue: 'rabbitmq-mock' } }] },
         scopeMetrics: [{ metrics: [{
@@ -48,7 +48,7 @@ test.describe('Observability Stack Programmatic Validation', () => {
 
   test('Distributed traces should show messaging metadata', async () => {
     // Inject a trace with the required metadata
-    await axios.post('http://localhost:4318/v1/traces', {
+    await axios.post('http://localhost:34318/v1/traces', {
       resourceSpans: [{
         resource: { attributes: [{ key: 'service.name', value: { stringValue: 'aio-pika' } }] },
         scopeSpans: [{ spans: [{
