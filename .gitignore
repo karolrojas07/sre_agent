@@ -1,0 +1,6 @@
+QA/units/node_modules/
+QA/units/test-results/
+QA/units/playwright-report/
+QA/e2e/node_modules/
+QA/e2e/test-results/
+QA/e2e/playwright-report/

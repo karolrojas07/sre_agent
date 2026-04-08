@@ -1,0 +1,55 @@
+@prefix : <http://example.org/sre#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://example.org/sre/user_stories> .
+
+<http://example.org/sre/user_stories> rdf:type owl:Ontology .
+
+### Metadata Definitions
+:UserStory rdf:type owl:Class .
+:title rdf:type owl:AnnotationProperty .
+:description rdf:type owl:AnnotationProperty .
+
+### User Story 1: Define SLO
+:us1 rdf:type :UserStory ;
+    :title "Define SLO for Payment Service" ;
+    :description "As an SRE, I want to define an SLO for the Payment Service to monitor its reliability." .
+
+### User Story 2: Define Infrastructure as Code
+:us2 rdf:type :UserStory ;
+    :title "Define Infrastructure as Code" ;
+    :description "As a Developer, I want to use Docker Compose to define the SRE agent's environment so that it is reproducible for local development." .
+
+### User Story 3: Define RabbitMQ Message Broker
+:us3 rdf:type :UserStory ;
+    :title "Define RabbitMQ with aio-pika" ;
+    :description "As an Architect, I want to use aio-pika for asynchronous RabbitMQ communication, ensuring compatibility with OTel auto-instrumentation for routing key capture." .
+
+### User Story 4: Centralized Observability with OTel Contrib
+:us4 rdf:type :UserStory ;
+    :title "Centralized Observability with OTel Contrib" ;
+    :description "As an SRE, I want to use the otel/opentelemetry-collector-contrib image to leverage the prometheusremotewrite receiver and community processors." .
+
+### User Story 5: Metrics and Visualization with Provisioning
+:us5 rdf:type :UserStory ;
+    :title "Automated Grafana Provisioning" ;
+    :description "As an SRE, I want the Docker Compose setup to include automated Grafana provisioning for RabbitMQ dashboards and Prometheus data sources." .
+
+### User Story 6: E2E Observability Validation
+:us6 rdf:type :UserStory ;
+    :title "E2E Playwright Regression Suite" ;
+    :description "As an SRE, I want a Playwright regression suite to validate that all observability components (OTel, Jaeger, Prometheus, Grafana) are correctly integrated and showing telemetry data." .
+
+### Test Instances for US6
+:e2e_observability_suite rdf:type :RegressionSuite ;
+    :title "Observability Stack Programmatic Validation" ;
+    :description "Playwright suite querying Prometheus and Jaeger APIs." .
+
+:test_prometheus_query rdf:type :E2ETestSuite ;
+    :title "Prometheus API Connectivity Test" .
+
+:test_jaeger_query rdf:type :E2ETestSuite ;
+    :title "Jaeger API Connectivity Test" .

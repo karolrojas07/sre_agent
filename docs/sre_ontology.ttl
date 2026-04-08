@@ -1,0 +1,64 @@
+@prefix : <http://example.org/sre#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://example.org/sre> .
+
+<http://example.org/sre> rdf:type owl:Ontology .
+
+### SRE Domain Classes
+:Service rdf:type owl:Class .
+:SLA rdf:type owl:Class .
+:SLO rdf:type owl:Class .
+:SLI rdf:type owl:Class .
+:Incident rdf:type owl:Class .
+:ErrorBudget rdf:type owl:Class .
+:UserStory rdf:type owl:Class .
+
+### Properties
+:title rdf:type owl:AnnotationProperty .
+:description rdf:type owl:AnnotationProperty .
+
+### Infrastructure & Non-Functional Concepts
+:InfrastructureAsCode rdf:type owl:Class .
+:DockerCompose rdf:type owl:Class ; rdfs:subClassOf :InfrastructureAsCode .
+:MessageBroker rdf:type owl:Class .
+:RabbitMQ rdf:type owl:Class ; rdfs:subClassOf :MessageBroker .
+:AioPika rdf:type owl:Class ; rdfs:subClassOf :Service .
+:ObservabilityTool rdf:type owl:Class .
+:OpenTelemetry rdf:type owl:Class ; rdfs:subClassOf :ObservabilityTool .
+:OpenTelemetryCollector rdf:type owl:Class ; rdfs:subClassOf :OpenTelemetry .
+:OTelCollectorContrib rdf:type owl:Class ; rdfs:subClassOf :OpenTelemetryCollector .
+:AutoInstrumentation rdf:type owl:Class ; rdfs:subClassOf :OpenTelemetry .
+:ContextPropagation rdf:type owl:Class ; rdfs:subClassOf :OpenTelemetry .
+:Jaeger rdf:type owl:Class ; rdfs:subClassOf :ObservabilityTool .
+:Prometheus rdf:type owl:Class ; rdfs:subClassOf :ObservabilityTool .
+:Grafana rdf:type owl:Class ; rdfs:subClassOf :ObservabilityTool .
+:GrafanaProvisioning rdf:type owl:Class ; rdfs:subClassOf :Grafana .
+:TelemetryData rdf:type owl:Class .
+:Metric rdf:type owl:Class ; rdfs:subClassOf :TelemetryData .
+:Trace rdf:type owl:Class ; rdfs:subClassOf :TelemetryData .
+:Metadata rdf:type owl:Class .
+:RoutingKey rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:MessagingAttribute rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:Persistence rdf:type owl:Class .
+:VolumeMount rdf:type owl:Class ; rdfs:subClassOf :Persistence .
+:NamedVolume rdf:type owl:Class ; rdfs:subClassOf :Persistence .
+:IngestionPattern rdf:type owl:Class .
+:PushPattern rdf:type owl:Class ; rdfs:subClassOf :IngestionPattern .
+:RemoteWrite rdf:type owl:Class ; rdfs:subClassOf :PushPattern .
+:PrometheusRemoteWriteReceiver rdf:type owl:Class ; rdfs:subClassOf :OpenTelemetryCollector .
+:InstrumentationPattern rdf:type owl:Class .
+:HybridInstrumentation rdf:type owl:Class ; rdfs:subClassOf :InstrumentationPattern .
+:Requirement rdf:type owl:Class .
+:NonFunctionalRequirement rdf:type owl:Class ; rdfs:subClassOf :Requirement .
+:ObservabilityValidation rdf:type owl:Class ; rdfs:subClassOf :NonFunctionalRequirement .
+
+### Testing Concepts
+:TestingTool rdf:type owl:Class .
+:Playwright rdf:type owl:Class ; rdfs:subClassOf :TestingTool .
+:TestSuite rdf:type owl:Class .
+:E2ETestSuite rdf:type owl:Class ; rdfs:subClassOf :TestSuite .
+:RegressionSuite rdf:type owl:Class ; rdfs:subClassOf :TestSuite .
