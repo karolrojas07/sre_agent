@@ -108,13 +108,8 @@ services:
       - otel-collector
 
   code-investigator:
-    image: python:3.9-slim
+    build: ./services/code_investigator
     container_name: code-investigator
-    command: >
-      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp pydantic && python main.py"
-    working_dir: /app
-    volumes:
-      - ./services/code_investigator:/app
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     depends_on:
