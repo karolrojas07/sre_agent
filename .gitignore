@@ -4,3 +4,6 @@ QA/units/playwright-report/
 QA/e2e/node_modules/
 QA/e2e/test-results/
 QA/e2e/playwright-report/
+services/interpreter_gateway/__pycache__/
+QA/e2e/failure-screenshot.png
+services/ui_vite/node_modules/

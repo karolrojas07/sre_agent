@@ -46,9 +46,21 @@
 ### Messaging & Communication
 :RestGateway rdf:type owl:Class ; rdfs:subClassOf :Service .
 :FastAPI rdf:type owl:Class ; rdfs:subClassOf :RestGateway .
+:Vite rdf:type owl:Class ; rdfs:subClassOf :Service .
+:LangGraph rdf:type owl:Class ; rdfs:subClassOf :Service .
+:StateGraph rdf:type owl:Class ; rdfs:subClassOf :LangGraph .
+:ThinkingView rdf:type owl:Class ; rdfs:subClassOf :Vite .
+:ReportIncidentButton rdf:type owl:Class ; rdfs:subClassOf :Vite .
+:SLODashboard rdf:type owl:Class ; rdfs:subClassOf :Vite .
+:TanStackQuery rdf:type owl:Class ; rdfs:subClassOf :Service .
+:Ky rdf:type owl:Class ; rdfs:subClassOf :Service .
+:FeatureSlicedDesign rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:OTelWebSDK rdf:type owl:Class ; rdfs:subClassOf :OpenTelemetry .
+:NodeJS rdf:type owl:Class ; rdfs:subClassOf :Service .
 :MessageSchema rdf:type owl:Class .
 :TaskMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
 :IncidentMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
+:ReportIncidentRequest rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
 :ValidationResultMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
 :CodebaseInvestigationReport rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
 

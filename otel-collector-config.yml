@@ -1,3 +1,8 @@
+extensions:
+  cors:
+    allowed_origins: ["*"]
+    allowed_headers: ["*"]
+
 receivers:
   otlp:
     protocols:
@@ -5,6 +10,8 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins: ["*"]
   prometheusremotewrite:
     endpoint: 0.0.0.0:19291
 
@@ -22,6 +29,7 @@ exporters:
       enabled: true
 
 service:
+  extensions: [cors]
   telemetry:
     metrics:
       readers:

@@ -21,8 +21,18 @@ provider.add_span_processor(processor)
 trace.set_tracer_provider(provider)
 tracer = trace.get_tracer(__name__)
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="SRE Agent Interpreter Gateway")
 FastAPIInstrumentor.instrument_app(app)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class IntentRequest(BaseModel):
     intent: str
@@ -65,10 +75,20 @@ async def publish_task(task_id: str, intent: str):
                 routing_key=routing_key
             )
 
+class IncidentReportRequest(BaseModel):
+    incident_details: str
+    metadata: dict = {}
+
 @app.post("/intent", response_model=IntentResponse, status_code=202)
 async def submit_intent(request: IntentRequest, background_tasks: BackgroundTasks):
     task_id = str(uuid.uuid4())
     background_tasks.add_task(publish_task, task_id, request.intent)
+    return IntentResponse(task_id=task_id, status="accepted")
+
+@app.post("/report-incident", response_model=IntentResponse, status_code=202)
+async def report_incident(request: IncidentReportRequest, background_tasks: BackgroundTasks):
+    task_id = str(uuid.uuid4())
+    background_tasks.add_task(publish_task, task_id, request.incident_details)
     return IntentResponse(task_id=task_id, status="accepted")
 
 if __name__ == "__main__":

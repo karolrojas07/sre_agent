@@ -91,3 +91,16 @@
 :test_code_investigator_react_loop rdf:type :E2ETestSuite ;
     :title "Codebase Investigator ReAct Loop Validation" ;
     :description "Playwright test validating the 10-turn limit and state schema compliance." .
+
+### User Story 13: Integrated Validation Agent with Vite UI and Async Processing
+:us13 rdf:type :UserStory ;
+    :title "Validation Agent Frontend and Message Node Scaffolding" ;
+    :description "As an SRE, I want a dedicated Vite UI for validation management and a service to process validation tasks asynchronously via FastAPI and RabbitMQ." .
+
+:test_validation_agent_async_e2e rdf:type :E2ETestSuite ;
+    :title "Validation Agent Async Processing E2E" ;
+    :description "Playwright test validating that the Vite UI triggers a validation task via /report-incident, which is queued via RabbitMQ and processed by the validation agent." .
+
+:test_validation_agent_scaffolding_e2e rdf:type :E2ETestSuite ;
+    :title "Validation Agent Scaffolding and Trace Validation" ;
+    :description "Playwright test asserting UI skeletal components exist and tracing headers are propagated from UI to Gateway POST /report-incident." .
