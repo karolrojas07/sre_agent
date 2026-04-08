@@ -39,25 +39,45 @@ async def main():
                     
                     with tracer.start_as_current_span("validate_intent", context=context) as span:
                         span.set_attribute("task_id", body.get("task_id"))
+                        # Enrichment
+                        span.set_attribute("messaging.rabbitmq.routing_key", "tasks.interpreter")
+                        
+                        span.set_attribute("validation.status", "failed")
+                        span.set_attribute("validation.checks_count", 2)
+                        span.set_attribute("validation.alert_level", "High")
                         print(f"Validated intent: {body.get('intent')}")
                         
                         # Downstream publishing with context injection
                         headers = {}
                         inject(headers)
                         
-                        result_body = json.dumps({"task_id": body.get("task_id"), "status": "failed"})
+                        result_body = json.dumps({
+                            "task_id": body.get("task_id"),
+                            "status": "failed",
+                            "checks": [
+                                {"name": "SLO Check", "result": "failed", "details": "Latency > 500ms"},
+                                {"name": "Service Health", "result": "passed"}
+                            ],
+                            "alert_level": "High"
+                        })
                         
                         # Publish to Jira
-                        await channel.default_exchange.publish(
-                            aio_pika.Message(body=result_body.encode(), headers=headers),
-                            routing_key="tasks.validation.results"
-                        )
+                        rk_jira = "tasks.validation.results"
+                        with tracer.start_as_current_span("publish_to_jira") as j_span:
+                            j_span.set_attribute("messaging.rabbitmq.routing_key", rk_jira)
+                            await channel.default_exchange.publish(
+                                aio_pika.Message(body=result_body.encode(), headers=headers),
+                                routing_key=rk_jira
+                            )
                         
                         # Publish to Code Fix
-                        await channel.default_exchange.publish(
-                            aio_pika.Message(body=result_body.encode(), headers=headers),
-                            routing_key="tasks.code.fix"
-                        )
+                        rk_code = "tasks.code.fix"
+                        with tracer.start_as_current_span("publish_to_code") as c_span:
+                            c_span.set_attribute("messaging.rabbitmq.routing_key", rk_code)
+                            await channel.default_exchange.publish(
+                                aio_pika.Message(body=result_body.encode(), headers=headers),
+                                routing_key=rk_code
+                            )
 
 if __name__ == "__main__":
     asyncio.run(main())

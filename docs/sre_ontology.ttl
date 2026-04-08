@@ -23,6 +23,18 @@
 :ValidationAgent rdf:type owl:Class ; rdfs:subClassOf :Agent .
 :JiraAgent rdf:type owl:Class ; rdfs:subClassOf :Agent .
 :CodeAgent rdf:type owl:Class ; rdfs:subClassOf :Agent .
+:CodebaseInvestigator rdf:type owl:Class ; rdfs:subClassOf :CodeAgent .
+
+### Investigator Concepts
+:ResearchState rdf:type owl:Class .
+:Finding rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:QuestionToResolve rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:IrrelevantPath rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:RelevantLocation rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:ProposedFixPlan rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:ReActLoop rdf:type owl:Class ; rdfs:subClassOf :Service .
+:ReflectionNode rdf:type owl:Class ; rdfs:subClassOf :Service .
+:RecoveryProtocol rdf:type owl:Class ; rdfs:subClassOf :Service .
 
 ### Domain Ports (Architectural Interfaces)
 :DomainPort rdf:type owl:Class .
@@ -38,6 +50,13 @@
 :TaskMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
 :IncidentMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
 :ValidationResultMessage rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
+:CodebaseInvestigationReport rdf:type owl:Class ; rdfs:subClassOf :MessageSchema .
+
+### Status Enums
+:InvestigationStatus rdf:type owl:Class ; rdfs:subClassOf :Metadata .
+:SUCCESS rdf:type owl:Class ; rdfs:subClassOf :InvestigationStatus .
+:RECOVERY_PARTIAL rdf:type owl:Class ; rdfs:subClassOf :InvestigationStatus .
+:FAILED rdf:type owl:Class ; rdfs:subClassOf :InvestigationStatus .
 
 ### Properties
 :title rdf:type owl:AnnotationProperty .

@@ -73,3 +73,21 @@
 :e2e_code_triage_test rdf:type :E2ETestSuite ;
     :title "Code Agent Diagnostic Triage Validation" ;
     :description "Playwright test validating that the Code Agent produces diagnostic spans and returns triaged context." .
+
+### User Story 11: Architectural Interface Validation
+:us11 rdf:type :UserStory ;
+    :title "Architectural Interface Validation" ;
+    :description "As an SRE, I want to validate that all agent components interact according to the architectural interface specification, including domain ports and standardized messaging." .
+
+:test_architectural_interfaces_e2e rdf:type :E2ETestSuite ;
+    :title "Standardized Messaging E2E Test" ;
+    :description "Playwright test validating RabbitMQ messages follow the Task, Incident, and ValidationResult schemas." .
+
+### User Story 12: Codebase Investigator E2E
+:us12 rdf:type :UserStory ;
+    :title "Codebase Investigator E2E" ;
+    :description "As a developer, I want to verify that the Codebase Investigator correctly manages its research state and adheres to the ReAct loop constraints and recovery protocol." .
+
+:test_code_investigator_react_loop rdf:type :E2ETestSuite ;
+    :title "Codebase Investigator ReAct Loop Validation" ;
+    :description "Playwright test validating the 10-turn limit and state schema compliance." .

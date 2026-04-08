@@ -39,11 +39,14 @@ from opentelemetry.propagate import inject
 # ... (imports and OTel setup remains same)
 
 async def publish_task(task_id: str, intent: str):
+    routing_key = "tasks.interpreter"
     with tracer.start_as_current_span("publish_to_rabbitmq") as span:
+        # Manual Enrichment (SRE Spec US3)
+        span.set_attribute("messaging.rabbitmq.routing_key", routing_key)
+        
         connection = await aio_pika.connect_robust(RABBITMQ_URL)
         async with connection:
             channel = await connection.channel()
-            routing_key = "tasks.interpreter"
             
             # Standard OTel Header Injection
             headers = {}

@@ -66,7 +66,7 @@ The system uses the Jaeger datasource to visualize end-to-end request flows.
 - **Full Chain Visibility**: You can track a single user request from:
   - `interpreter-gateway` (publish_to_rabbitmq)
   - `validation-agent` (validate_intent)
-  - `mock-code-agent` (code_triage_incident)
+  - `code-investigator` (code_triage_incident)
   - `mock-jira-agent` (jira_create_incident)
 - **Key Metric**: Trace duration and span dependencies.
 

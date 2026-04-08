@@ -34,6 +34,8 @@ async def main():
                     body = json.loads(message.body.decode())
                     with tracer.start_as_current_span("jira_create_incident", context=context) as span:
                         span.set_attribute("task_id", body.get("task_id"))
+                        # Enrichment
+                        span.set_attribute("messaging.rabbitmq.routing_key", "tasks.validation.results")
                         print(f"Jira Agent: Creating incident for task {body.get('task_id')}")
 
 if __name__ == "__main__":

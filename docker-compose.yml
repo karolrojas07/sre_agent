@@ -67,7 +67,7 @@ services:
     image: python:3.9-slim
     container_name: interpreter-gateway
     command: >
-      bash -c "pip install fastapi uvicorn aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp && python main.py"
+      bash -c "pip install fastapi uvicorn aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp pydantic && python main.py"
     working_dir: /app
     volumes:
       - ./services/interpreter_gateway:/app
@@ -83,7 +83,7 @@ services:
     image: python:3.9-slim
     container_name: validation-agent
     command: >
-      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp && python main.py"
+      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp pydantic && python main.py"
     working_dir: /app
     volumes:
       - ./services/validation_agent:/app
@@ -97,7 +97,7 @@ services:
     image: python:3.9-slim
     container_name: mock-jira-agent
     command: >
-      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp && python main.py"
+      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp pydantic && python main.py"
     working_dir: /app
     volumes:
       - ./services/mock_jira_agent:/app
@@ -107,14 +107,14 @@ services:
       - rabbitmq
       - otel-collector
 
-  mock-code-agent:
+  code-investigator:
     image: python:3.9-slim
-    container_name: mock-code-agent
+    container_name: code-investigator
     command: >
-      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp && python main.py"
+      bash -c "pip install aio-pika opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp pydantic && python main.py"
     working_dir: /app
     volumes:
-      - ./services/mock_code_agent:/app
+      - ./services/code_investigator:/app
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     depends_on:
