@@ -8,7 +8,7 @@ The SRE Agent System is a decoupled, event-driven architecture designed to autom
 - **Validation Agent**: Consumes tasks and performs health/SLO checks.
 - **Mock Jira Agent**: Simulates incident ticket creation.
 - **Mock Code Agent**: Diagnostic and triage service. Explores codebase for hidden risks and retrieves historical context from a vector database (VoyageAI + ChromaDB).
-- **Infrastructure**: RabbitMQ (Message Bus), OTel Collector, Jaeger (Tracing), Prometheus (Metrics), Grafana (Visualization).
+- **Infrastructure**: RabbitMQ (Message Bus), OTel Collector, Jaeger (Tracing), Prometheus (Metrics), Loki (Logging), Grafana (Visualization).
 
 ---
 
@@ -34,6 +34,7 @@ The services will be available at:
 - **Interpreter Gateway**: http://localhost:48000
 - **Jaeger UI**: http://localhost:46686
 - **Prometheus UI**: http://localhost:49090
+- **Loki API**: http://localhost:3100
 - **Grafana UI**: http://localhost:43000
 
 ### Step 3: Run the Regression Suite (Optional)
@@ -50,9 +51,10 @@ cd ../e2e && npm install && npm test
 
 ## Observability & Grafana Dashboards
 
-The system is provisioned with two primary data sources in Grafana:
+The system is provisioned with three primary data sources in Grafana:
 1. **Prometheus**: For metrics visualization.
 2. **Jaeger**: For distributed tracing exploration.
+3. **Loki**: For centralized structured logging.
 
 ### Grafana Access
 - **URL**: http://localhost:43000
@@ -78,8 +80,14 @@ Standard metrics are scraped from the OTel Collector, allowing for visualization
 
 #### 3. OTel Collector Internal Metrics
 The dashboard displays the health of the telemetry pipeline itself:
-- **Receivers/Exporters Status**: Monitoring the OTLP receivers and the Jaeger/Prometheus exporters.
+- **Receivers/Exporters Status**: Monitoring the OTLP receivers and the Jaeger/Prometheus/Loki exporters.
 - **Queue/Batch Size**: Visibility into the `batch` processor to ensure telemetry data isn't being dropped due to saturation.
+
+#### 4. Centralized Logging (Loki Integration)
+The system aggregates logs from all backend services and the Vite UI.
+- **Log Enrichment**: Logs are enriched with metadata such as `job`, `service_name`, and `browser_user_agent` (for frontend logs proxied via the Gateway).
+- **Code Investigator Detail**: The Codebase Investigator emits thorough logs for each turn of its ReAct loop, providing visibility into its "thinking" process during triage.
+- **Key Labels**: Filter logs in Grafana using `{job="code-investigator"}` or `{job="ui-vite-e2e"}`.
 
 ### How to Create Custom Dashboards
 1. Go to **Dashboards** -> **New** -> **New Dashboard**.
@@ -93,5 +101,6 @@ The dashboard displays the health of the telemetry pipeline itself:
 ## Technical Specifications
 - **Trace Context**: W3C Traceparent format propagated via AMQP headers.
 - **Messaging**: `aio-pika` (RabbitMQ) with standard message schemas.
-- **Observability**: OpenTelemetry SDK 1.x (Python) with OTLP/HTTP exporter.
+- **Observability**: OpenTelemetry SDK 1.x (Python) with OTLP/HTTP exporter for traces, metrics, and logs.
+- **Logging**: Centralized in **Grafana Loki** using structured JSON format.
 - **Vector Database**: Simulated integration with **VoyageAI** and **ChromaDB** for historical incident retrieval.

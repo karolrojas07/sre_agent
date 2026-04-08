@@ -1,8 +1,3 @@
-extensions:
-  cors:
-    allowed_origins: ["*"]
-    allowed_headers: ["*"]
-
 receivers:
   otlp:
     protocols:
@@ -10,10 +5,6 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-        cors:
-          allowed_origins: ["*"]
-  prometheusremotewrite:
-    endpoint: 0.0.0.0:19291
 
 processors:
   batch:
@@ -25,25 +16,27 @@ exporters:
       insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
-    resource_to_telemetry_conversion:
-      enabled: true
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+    labels:
+      resource:
+        service.name: "job"
+        browser.user_agent: "browser_user_agent"
 
 service:
-  extensions: [cors]
   telemetry:
     metrics:
-      readers:
-        - pull:
-            exporter:
-              prometheus:
-                host: 0.0.0.0
-                port: 8888
+      address: 0.0.0.0:8888
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp/jaeger]
     metrics:
-      receivers: [otlp, prometheusremotewrite]
+      receivers: [otlp]
       processors: [batch]
       exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki]
