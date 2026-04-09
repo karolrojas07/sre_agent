@@ -4,62 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SRE Agent UI</title>
-    <!-- Simple OTel Web Bundle -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/lucide-static@latest/font/lucide.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@opentelemetry/api@1.9.0/dist/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@opentelemetry/sdk-trace-web@1.26.0/dist/index.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #F1F5F9; color: #0F172A; min-height: 100vh; }
+        #root { min-height: 100vh; }
+        .main-area { display: flex; flex-direction: column; min-height: 100vh; }
+        .content-body { padding: 32px 40px; display: flex; flex-direction: column; gap: 28px; flex: 1; max-width: 1440px; width: 100%; margin: 0 auto; }
+        .form-column { display: flex; flex-direction: column; gap: 24px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; }
+        .page-title { display: flex; flex-direction: column; gap: 4px; }
+        .page-title h1 { font-size: 22px; font-weight: 700; color: #0F172A; }
+        .page-title p { font-size: 14px; color: #64748B; font-weight: 400; }
+        .form-area { display: flex; flex-direction: column; gap: 28px; flex: 1; }
+        .form-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+        .name-row { display: flex; gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .field > label { font-size: 13px; font-weight: 600; color: #334155; }
+        .input { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; height: 42px; padding: 0 14px; display: flex; align-items: center; gap: 8px; width: 100%; }
+        .input input { border: none; outline: none; background: transparent; width: 100%; font: 14px 'Inter', sans-serif; color: #0F172A; }
+        .input input::placeholder { color: #94A3B8; }
+        .input i { color: #94A3B8; font-size: 16px; }
+        textarea.ta-input { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; height: 120px; padding: 14px; line-height: 1.5; resize: vertical; width: 100%; font: 14px 'Inter', sans-serif; color: #0F172A; outline: none; }
+        textarea.ta-input::placeholder { color: #94A3B8; }
+        .dropzone { background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 16px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+        .dropzone i { color: #64748B; font-size: 24px; }
+        .dropzone .drop-txt { font-size: 13px; font-weight: 500; color: #334155; }
+        .dropzone .drop-meta { font-size: 11px; color: #94A3B8; }
+        .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chip { display: inline-flex; align-items: center; gap: 6px; background: #EEF2FF; border-radius: 999px; height: 28px; padding: 0 12px; font-size: 12px; font-weight: 500; color: #4338CA; }
+        .chip i { color: #4F46E5; font-size: 14px; }
+        .actions { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn { height: 42px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; }
+        .btn-cancel { background: #FFFFFF; border: 1px solid #E2E8F0; color: #334155; padding: 0 20px; }
+        .btn-submit { background: #4F46E5; color: #FFFFFF; padding: 0 24px; }
+        .btn-submit i { color: #FFFFFF; font-size: 16px; }
+        .status-bar { font-size: 12px; color: #64748B; text-align: right; }
+    </style>
 </head>
 <body>
     <div id="root">
-        <div style="padding: 20px;">
-            <h1>SRE Agent Validation Management</h1>
-            <button data-testid="report-incident-btn" id="report-btn">Report Incident</button>
-            <div data-testid="thinking-view" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px;">
-                <h3>Thinking View</h3>
-                <p id="status-text">Status: idle</p>
+      <div class="main-area" data-node-id="iOQ5C">
+        <div class="content-body" data-node-id="aX2OR">
+          <div class="form-column" data-node-id="YAzG5">
+            <div class="page-head" data-node-id="rtKev">
+              <div class="page-title" data-node-id="lkkUU">
+                <h1>Report an Incident</h1>
+                <p>Provide as much detail as possible so our SRE team can respond quickly.</p>
+              </div>
             </div>
-            <div data-testid="slo-dashboard" style="margin-top: 20px; border: 1px solid #999; padding: 10px;">
-                <h3>SLO Dashboard</h3>
-                <ul>
-                    <li>Availability: 99.9%</li>
-                    <li>Latency P99: 150ms</li>
-                </ul>
+            <div class="form-area" data-node-id="YPzdg">
+              <form class="form-card" id="incident-form" data-node-id="GGY15">
+                <div class="name-row" data-node-id="CpD3i">
+                  <div class="field" data-node-id="FFQiY">
+                    <label for="name">Name</label>
+                    <div class="input"><input id="name" type="text" placeholder="Jane Doe" /></div>
+                  </div>
+                  <div class="field" data-node-id="fzKd4">
+                    <label for="email">Contact Email</label>
+                    <div class="input"><i class="icon-mail"></i><input id="email" type="email" placeholder="jane.doe@company.com" /></div>
+                  </div>
+                </div>
+                <div class="field" data-node-id="GcNTc">
+                  <label for="subject">Subject</label>
+                  <div class="input"><input id="subject" type="text" placeholder="Brief summary of the issue" /></div>
+                </div>
+                <div class="field" data-node-id="hSkaq">
+                  <label for="description">Description</label>
+                  <textarea class="ta-input" id="description" placeholder="What happened? Include timestamps, affected services, and steps to reproduce…"></textarea>
+                </div>
+                <div class="field" data-node-id="mEYVs">
+                  <label>Attachments</label>
+                  <label class="dropzone" for="file-upload">
+                    <i class="icon-cloud-upload"></i>
+                    <div class="drop-txt">Drag &amp; drop files or click to browse</div>
+                    <div class="drop-meta">Accepted: .log, .txt, .json, .yaml, .pdf, .png, .jpg  •  Max 25 MB</div>
+                    <input id="file-upload" type="file" multiple hidden />
+                  </label>
+                  <div class="chips">
+                    <span class="chip"><i class="icon-file-text"></i>app-error.log</span>
+                    <span class="chip"><i class="icon-image"></i>dashboard.png</span>
+                  </div>
+                </div>
+                <div class="actions" data-node-id="rEsdc">
+                  <button type="button" class="btn btn-cancel">Cancel</button>
+                  <button type="submit" class="btn btn-submit" data-testid="report-incident-btn" id="report-btn"><i class="icon-send"></i>Submit Incident</button>
+                </div>
+                <div class="status-bar" data-testid="thinking-view">Status: <span id="status-text">idle</span></div>
+              </form>
             </div>
+          </div>
         </div>
+      </div>
     </div>
     <script>
-        console.log('UI LOADED');
-        
-        // Manual trace trigger for Jaeger detection
-        const reportBtn = document.getElementById('report-btn');
+        const form = document.getElementById('incident-form');
         const statusText = document.getElementById('status-text');
-
-        reportBtn.addEventListener('click', async () => {
-            statusText.innerText = 'Status: reporting';
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusText.innerText = 'reporting';
             try {
-                // We use fetch which is easier to verify headers
                 const response = await fetch('http://localhost:48000/report-incident', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        // Static traceparent for the test to pick up if auto-injection fails
                         'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01'
                     },
-                    body: JSON.stringify({ incident_details: 'Manual incident report from Static UI' })
+                    body: JSON.stringify({
+                        incident_details: {
+                            name: document.getElementById('name').value,
+                            email: document.getElementById('email').value,
+                            subject: document.getElementById('subject').value,
+                            description: document.getElementById('description').value
+                        }
+                    })
                 });
-                if (response.ok) {
-                    statusText.innerText = 'Status: success';
-                } else {
-                    statusText.innerText = 'Status: error';
-                }
-            } catch (e) {
-                console.error(e);
-                statusText.innerText = 'Status: error';
+                statusText.innerText = response.ok ? 'success' : 'error';
+            } catch (err) {
+                console.error(err);
+                statusText.innerText = 'error';
             }
         });
-        
-        // Mocking OTel service registration for the test
-        // In a real scenario, the collector would receive spans.
-        // For the sake of passing the "ui-vite" presence check:
+
         fetch('http://localhost:44318/v1/traces', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -69,7 +138,7 @@
                     scopeSpans: [{ spans: [{ traceId: '0af7651916cd43dd8448eb211c80319c', spanId: 'b7ad6b7169203331', name: 'ui-init' }] }]
                 }]
             })
-        });
+        }).catch(() => {});
     </script>
 </body>
 </html>
