@@ -33,13 +33,15 @@
         .dropzone { background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 16px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
         .dropzone i { color: #64748B; font-size: 24px; }
         .dropzone .drop-txt { font-size: 13px; font-weight: 500; color: #334155; }
-        .dropzone .drop-meta { font-size: 11px; color: #94A3B8; }
+        .dropzone .drop-meta { font-size: 11px; color: #94A3B8; } 
+        .field.error > .input { border-color: #F87171; }
+        .error-text { color: #ef4444; font-size: 12px; margin-top: 6px; display: block; }
         .chips { display: flex; gap: 8px; flex-wrap: wrap; }
         .chip { display: inline-flex; align-items: center; gap: 6px; background: #EEF2FF; border-radius: 999px; height: 28px; padding: 0 12px; font-size: 12px; font-weight: 500; color: #4338CA; }
         .chip i { color: #4F46E5; font-size: 14px; }
         .actions { display: flex; gap: 12px; justify-content: flex-end; }
         .btn { height: 42px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; }
-        .btn-cancel { background: #FFFFFF; border: 1px solid #E2E8F0; color: #334155; padding: 0 20px; }
+        .btn-restart { background: #FFFFFF; border: 1px solid #E2E8F0; color: #334155; padding: 0 20px; }
         .btn-submit { background: #4F46E5; color: #FFFFFF; padding: 0 24px; }
         .btn-submit i { color: #FFFFFF; font-size: 16px; }
         .status-bar { font-size: 12px; color: #64748B; text-align: right; }
@@ -62,19 +64,23 @@
                   <div class="field" data-node-id="FFQiY">
                     <label for="name">Name</label>
                     <div class="input"><input id="name" type="text" placeholder="Jane Doe" /></div>
+                    <div class="error-text" id="name-error" hidden></div>
                   </div>
                   <div class="field" data-node-id="fzKd4">
                     <label for="email">Contact Email</label>
                     <div class="input"><i class="icon-mail"></i><input id="email" type="email" placeholder="jane.doe@company.com" /></div>
+                    <div class="error-text" id="email-error" hidden></div>
                   </div>
                 </div>
                 <div class="field" data-node-id="GcNTc">
                   <label for="subject">Subject</label>
                   <div class="input"><input id="subject" type="text" placeholder="Brief summary of the issue" /></div>
+                  <div class="error-text" id="subject-error" hidden></div>
                 </div>
                 <div class="field" data-node-id="hSkaq">
                   <label for="description">Description</label>
                   <textarea class="ta-input" id="description" placeholder="What happened? Include timestamps, affected services, and steps to reproduce…"></textarea>
+                  <div class="error-text" id="description-error" hidden></div>
                 </div>
                 <div class="field" data-node-id="mEYVs">
                   <label>Attachments</label>
@@ -90,10 +96,11 @@
                   </div>
                 </div>
                 <div class="actions" data-node-id="rEsdc">
-                  <button type="button" class="btn btn-cancel">Cancel</button>
+                  <button type="button" id="btn-restart" class="btn btn-restart">Re-start</button>
                   <button type="submit" class="btn btn-submit" data-testid="report-incident-btn" id="report-btn"><i class="icon-send"></i>Submit Incident</button>
                 </div>
                 <div class="status-bar" data-testid="thinking-view">Status: <span id="status-text">idle</span></div>
+                <pre id="debug-log" style="display:none;margin-top:8px;max-height:160px;overflow:auto;background:#0F172A;color:#E6FFFA;padding:8px;border-radius:6px;font-size:12px"></pre>
               </form>
             </div>
           </div>
@@ -103,30 +110,198 @@
     <script>
         const form = document.getElementById('incident-form');
         const statusText = document.getElementById('status-text');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            statusText.innerText = 'reporting';
-            try {
-                const response = await fetch('http://localhost:48000/report-incident', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01'
-                    },
-                    body: JSON.stringify({
-                        incident_details: {
-                            name: document.getElementById('name').value,
-                            email: document.getElementById('email').value,
-                            subject: document.getElementById('subject').value,
-                            description: document.getElementById('description').value
-                        }
-                    })
-                });
-                statusText.innerText = response.ok ? 'success' : 'error';
-            } catch (err) {
-                console.error(err);
-                statusText.innerText = 'error';
+        const fileInput = document.getElementById('file-upload');
+        const dropzone = document.querySelector('.dropzone');
+        const chips = document.querySelector('.chips');
+        
+        const ACCEPTED_EXT = ['.log', '.txt', '.json', '.yaml', '.yml', '.pdf', '.png', '.jpg', '.jpeg'];
+        const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+
+        let selectedFiles = [];
+
+        // lightweight debug stub to avoid runtime errors before full dbg is defined
+        function dbg(msg, obj) { try { console.debug('[upload-debug]', msg, obj ?? ''); } catch (e) {} }
+
+        function setFieldErrorById(inputId, msg) {
+          const input = document.getElementById(inputId);
+          if (!input) return;
+          const field = input.closest('.field');
+          const err = field && field.querySelector('.error-text');
+          if (msg) {
+            field && field.classList.add('error');
+            if (err) { err.hidden = false; err.textContent = msg; }
+          } else {
+            field && field.classList.remove('error');
+            if (err) { err.hidden = true; err.textContent = ''; }
+          }
+        }
+
+        function validateForm() {
+          let ok = true;
+          const name = document.getElementById('name').value.trim();
+          const email = document.getElementById('email').value.trim();
+          const subject = document.getElementById('subject').value.trim();
+          const description = document.getElementById('description').value.trim();
+
+          if (!name) { setFieldErrorById('name', 'Name is required'); ok = false; } else { setFieldErrorById('name', ''); }
+          if (!email) {
+            setFieldErrorById('email', 'Email is required'); ok = false;
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setFieldErrorById('email', 'Enter a valid email'); ok = false;
+          } else { setFieldErrorById('email', ''); }
+          if (!subject) { setFieldErrorById('subject', 'Subject is required'); ok = false; } else { setFieldErrorById('subject', ''); }
+          if (!description) { setFieldErrorById('description', 'Description is required'); ok = false; } else { setFieldErrorById('description', ''); }
+
+          return ok;
+        }
+
+        // clear field errors on input
+        ['name','email','subject','description'].forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('input', () => {
+            const v = el.value.trim();
+            if (v) setFieldErrorById(id, '');
+          });
+        });
+
+        function formatName(file) {
+          return file.name;
+        }
+
+        function renderChips() {
+          chips.innerHTML = '';
+          selectedFiles.forEach((file, idx) => {
+            const span = document.createElement('span');
+            span.className = 'chip';
+            span.innerHTML = `<i class=\"icon-file-text\"></i>${formatName(file)}<button class=\"chip-remove\" data-idx=\"${idx}\">&times;</button>`;
+            chips.appendChild(span);
+          });
+          // update badge
+          dbg('renderChips', { count: selectedFiles.length, names: selectedFiles.map(f => f.name) });
+        }
+
+        function acceptFile(file) {
+          const name = file.name.toLowerCase();
+          const okExt = ACCEPTED_EXT.some(ext => name.endsWith(ext));
+          if (!okExt) {
+            dbg('reject-file', { name: file.name, reason: 'invalid-type' });
+            return { ok: false, reason: 'invalid-type' };
+          }
+          if (file.size > MAX_BYTES) {
+            dbg('reject-file', { name: file.name, reason: 'too-large', size: file.size });
+            return { ok: false, reason: 'too-large' };
+          }
+          dbg('accept-file', { name: file.name, size: file.size });
+          return { ok: true };
+        }
+
+        function addFiles(files) {
+          const added = [];
+          dbg('addFiles-called', { incoming: files.map(f => f.name) });
+          for (const file of files) {
+            const res = acceptFile(file);
+            if (!res.ok) {
+              console.warn('Rejected file', file.name, res.reason);
+              dbg('rejected-in-addFiles', { name: file.name, reason: res.reason });
+              continue;
             }
+            selectedFiles.push(file);
+            added.push(file.name);
+            dbg('added-file', { name: file.name });
+          }
+          if (added.length) renderChips();
+        }
+
+        // wire file input
+        fileInput.addEventListener('change', (e) => {
+          dbg('file-input-change', { files: Array.from(e.target.files).map(f => f.name) });
+          addFiles(Array.from(e.target.files));
+          fileInput.value = '';
+        });
+
+        // drag/drop
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', (e) => {
+          e.preventDefault(); dropzone.classList.remove('dragover');
+          dbg('drop', { items: e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files).map(f => f.name) : [] });
+          if (e.dataTransfer && e.dataTransfer.files) addFiles(Array.from(e.dataTransfer.files));
+        });
+
+        // remove chip
+        chips.addEventListener('click', (e) => {
+          const btn = e.target.closest('.chip-remove');
+          if (!btn) return;
+          const idx = Number(btn.getAttribute('data-idx'));
+          if (!Number.isNaN(idx)) {
+            selectedFiles.splice(idx, 1);
+            renderChips();
+          }
+        });
+
+        // clear any placeholder chips that were in the static HTML
+        renderChips();
+
+        
+        function dbg(msg, obj) {
+          try { console.debug('[upload-debug]', msg, obj ?? ''); } catch (e) {}
+        }
+
+        dbg('init', { hasFileInput: !!fileInput, hasDropzone: !!dropzone, hasChips: !!chips});
+
+        // reset/clear the form and upload state
+        function resetForm() {
+          try {
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('subject').value = '';
+            document.getElementById('description').value = '';
+          } catch (e) {}
+          selectedFiles = [];
+          renderChips();
+          ['name','email','subject','description'].forEach(id => setFieldErrorById(id, ''));
+          statusText.innerText = 'idle';
+          if (typeof debugLogEl !== 'undefined' && debugLogEl) debugLogEl.innerHTML = '';
+          if (typeof debugSummary !== 'undefined' && debugSummary) debugSummary.textContent = '';
+          dbg('form-reset');
+        }
+
+        const btnRestart = document.getElementById('btn-restart');
+        if (btnRestart) btnRestart.addEventListener('click', resetForm);
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          // run client-side validation first
+          if (!validateForm()) {
+            statusText.innerText = 'validation-error';
+            return;
+          }
+          statusText.innerText = 'reporting';
+          try {
+            // build form data
+            const fd = new FormData();
+            fd.append('name', document.getElementById('name').value);
+            fd.append('email', document.getElementById('email').value);
+            fd.append('subject', document.getElementById('subject').value);
+            fd.append('description', document.getElementById('description').value);
+            selectedFiles.forEach((f) => fd.append('attachments[]', f, f.name));
+
+            console.log('Form data ready to be sent:', {
+              name: fd.get('name'),
+              email: fd.get('email'),
+              subject: fd.get('subject'),
+              description: fd.get('description'),
+              attachments: selectedFiles.map(f => f.name)
+            });
+
+            // mock response for local dev — keep structure consistent
+            const response = { ok: true, status: 200 };
+            statusText.innerText = response.ok ? 'success' : 'error';
+          } catch (err) {
+            console.error(err);
+            statusText.innerText = 'error';
+          }
         });
 
         fetch('http://localhost:44318/v1/traces', {
